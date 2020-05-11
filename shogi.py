@@ -402,7 +402,10 @@ class Shogi():
                     
                     piece = random.choice(current.pieces)
                    
-                    pos = tuple(random.choice(np.where(self.board_state==0)))
+                    rnd = random.randint(0,len(temp[0])-1)
+                        
+                    pos = (temp[0][rnd],temp[1][rnd])
+                    
                     
                     if self.place(current, piece, pos):
                         mov_list.append((choice,piece,pos))
