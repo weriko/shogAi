@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu May 21 21:47:27 2020
+
+@author: Sandu
+"""
+
 import numpy as np
 import random
 import pandas as pd
+import serial, time
 #Todo:
     # optmizing stuff?
     # Organizing into classes and modules, I guess?
@@ -44,7 +52,7 @@ class Shogi():
         self.PIECES = {0: lambda pos2, pos1, s: False, 
                        #IM SORRY I INVERTED POS1 AND POS2 HERE REMEMBER TO INVER THEM FOR #1 #2 
                        1: lambda pos2, pos1, s : pos1 in [(pos2[0] + 1*s,pos2[1] + 1*s),(pos2[0] +1*s ,pos2[1] +0*s ),(pos2[0]+ 0*s ,pos2[1]+1*s ),(pos2[0]-1,pos2[1] -1*s),(pos2[0] -1*s ,pos2[1]+ 0*s ),(pos2[0]+ 0*s,pos2[1] -1*s),(pos2[0] -1*s ,pos2[1]+ 1*s),(pos2[0] -1*s,pos2[1] -1*s)],#FIX STARTING POS NAME
-                       2: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],#FIX STARTING POS NAME
+                       2: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],#FIX STARTING POS NAME
                        
                         6: lambda pos1, pos2,s : pos2 in self.checkBishop(pos1,s=s),#gets a diagonal with respect with pos 1.
                         
@@ -59,10 +67,10 @@ class Shogi():
                        10: lambda pos1, pos2, s: pos2 in self.checkTower(pos1, s) or pos2 in [(pos1[0]-1, pos1[1]-1),(pos1[0]+1, pos1[1]+1),(pos1[0]+1, pos1[1]-1),(pos1[0]-1, pos1[1]+1)],
                        11: lambda pos1, pos2,s : pos2 in self.checkBishop(pos1,s=s) or pos2 in [(pos1[0]+1, pos1[1]), (pos1[0], pos1[1]+1),(pos1[0]-1, pos1[1]),(pos1[0], pos1[1]-1)],
                            
-                       12: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       13: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       14: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       15: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
+                       12: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       13: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       14: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       15: lambda pos2, pos1,s: pos1 in [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
                        }
         #THIS CAN BE IMPLEMENTED WITH A SIMPLE LIST BUT eh..
         
@@ -348,7 +356,7 @@ class Shogi():
         piece_mov =  {0: lambda pos, s:False,
                        #IM SORRY I INVERTED POS1 AND POS2 HERE REMEMBER TO INVER THEM FOR #1 #2 
                        1: lambda pos2, s: [(pos2[0] + 1*s,pos2[1] + 1*s),(pos2[0] +1*s ,pos2[1] +0*s ),(pos2[0]+ 0*s ,pos2[1]+1*s ),(pos2[0]-1,pos2[1] -1*s),(pos2[0] -1*s ,pos2[1]+ 0*s ),(pos2[0]+ 0*s,pos2[1] -1*s),(pos2[0] -1*s ,pos2[1]+ 1*s),(pos2[0] -1*s,pos2[1] -1*s)],#FIX STARTING POS NAME
-                       2: lambda pos2, s: [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],#FIX STARTING POS NAME
+                       2: lambda pos2, s: [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],#FIX STARTING POS NAME
                        
                         6: lambda pos1, s: self.checkBishop(pos1,s=s),#gets a diagonal with respect with pos 1.
                         
@@ -363,10 +371,10 @@ class Shogi():
                        10:  lambda pos1, s:self.checkTower(pos1, s) or pos2 in [(pos1[0]-1, pos1[1]-1),(pos1[0]+1, pos1[1]+1),(pos1[0]+1, pos1[1]-1),(pos1[0]-1, pos1[1]+1)],
                        11:  lambda pos1, s:self.checkBishop(pos1,s=s) or pos2 in [(pos1[0]+1, pos1[1]), (pos1[0], pos1[1]+1),(pos1[0]-1, pos1[1]),(pos1[0], pos1[1]-1)],
                            
-                       12:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       13:lambda pos1, s: [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       14:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
-                       15:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s)],
+                       12:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       13:lambda pos1, s: [(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       14:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
+                       15:  lambda pos1, s:[(pos2[0]+1*s,pos2[1]+1*s),(pos2[0]+1*s,pos2[1]+0*s),(pos2[0]+1*s,pos2[1]-1*s),(pos2[0]-1*s,pos2[1]+0*s), (pos2[0],pos2[1]+1),(pos2[0],pos2[1]-1)],
                        }
         
         while not winner:
@@ -423,6 +431,9 @@ class Shogi():
                 
             x+=1
             current = turns[x%2]
+            
+    
+
                 
 
 
