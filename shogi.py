@@ -82,7 +82,7 @@ class Shogi():
                         6: lambda pos1, pos2,s : pos2 in self.checkBishop(pos1,s=s),#gets a diagonal with respect with pos 1.
                        
                        
-                        5: lambda pos1, pos2, s: pos2 in [(pos1[0]+3*s,pos1[1]+1),(pos1[0]+3*s,pos1[1]-1)],
+                        5: lambda pos1, pos2, s: pos2 in [(pos1[0]+2*s,pos1[1]+1),(pos1[0]+2*s,pos1[1]-1)],
                         4: lambda pos1, pos2, s: pos2 in [(pos1[0]+ 1*s, pos1[1]+1*s) , (pos1[0]+1*s, pos1[1]-1*s) , (pos1[0]+1*s, pos1[1]+0*s) , (pos1[0]-1*s, pos1[1]-1*s) , (pos1[0]-1*s, pos1[1]+1*s) ],
                        
                        8:  lambda pos1, pos2, s: pos2 in [(pos1[0]+1*s,pos1[1])],
